@@ -1,0 +1,44 @@
+<!doctype>
+<head>
+
+        <link type="text/css" rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css">
+	<script src="/vendor/d3.v3.js"></script>
+	<script src="/vendor/d3.layout.min.js"></script>
+
+
+	<script src="/vendor/jquery.min.js"></script>
+
+	<script src="/vendor/rickshaw.js"></script>
+        <script src="/vendor/Rickshaw.Graph.Axis.Time.js"></script>
+        <script src="/vendor/Rickshaw.Graph.Axis.Y.js"></script>
+        <script src="/vendor/Rickshaw.Graph.Axis.X.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.15/jquery-ui.min.js"></script>
+</head>
+<body>
+
+<div id="chart_container">
+  <div id="chart"></div>
+</div>
+<div id="chart_container">
+  <div id="chart2"></div>
+</div>
+
+<script>
+var ticksTreatment = 'glow';
+
+$.getJSON( "data.json", function( data ) {
+  console.log(data);
+  var graph = new Rickshaw.Graph( {
+    element: document.querySelector("#chart"),
+    width: 800,
+    height: 400,
+    renderer: 'area',
+    series: data
+  } );
+  //  var axes = new Rickshaw.Graph.Axis.Time( { graph: graph } );
+  graph.render();
+});
+
+</script>
+
+</body>
