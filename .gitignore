@@ -3,3 +3,4 @@ thereplay.SC2Replay
 *.swp
 uploads/*
 node_modules
+venv
