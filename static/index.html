@@ -20,51 +20,86 @@
 </head>
 <body>
 
-<div id="chart_container">
-  <div id="chart"></div>
+<div id="chart_container1">
+  <div id="chart1"></div>
 
-  <div id="legend_container">
-    <div id="smoother" title="Smoothing"></div>
-    <div id="legend"></div>
+  <div id="legend_container1">
+    <div id="smoother1" title="Smoothing"></div>
+    <div id="legend1"></div>
   </div>
-  <div id="slider"></div>
+  <div id="slider1"></div>
 </div>
-<div id="chart_container">
+<div id="chart_container2">
   <div id="chart2"></div>
+
+  <div id="legend_container2">
+    <div id="smoother2" title="Smoothing"></div>
+    <div id="legend2"></div>
+  </div>
+  <div id="slider2"></div>
 </div>
 
 <script>
 var ticksTreatment = 'glow';
+var endpoint = "api/1.0/army_supply/ca9257eb1277133e5faa006d51fc4cb07cf10f07.SC2Replay"
 
-$.getJSON( "data.json", function( data ) {
+$.getJSON( endpoint, function( data ) {
   console.log(data);
-  var graph = new Rickshaw.Graph( {
-    element: document.querySelector("#chart"),
+  var series1 = data['players'][0]['army_supply'];
+  var graph1 = new Rickshaw.Graph( {
+    element: document.querySelector("#chart1"),
     width: 800,
     height: 400,
     renderer: 'area',
-    series: data
+    series: series1
   } );
-  var axes = new Rickshaw.Graph.Axis.X( { graph: graph } );
-  var axes = new Rickshaw.Graph.Axis.Y( { graph: graph } );
+  var axes = new Rickshaw.Graph.Axis.X( { graph: graph1 } );
+  var axes = new Rickshaw.Graph.Axis.Y( { graph: graph1 } );
 
-  var hoverDetail = new Rickshaw.Graph.HoverDetail( {
-    graph: graph
-  } );
-
-  var legend = new Rickshaw.Graph.Legend( {
-    graph: graph,
-    element: document.getElementById('legend')
-
+  var hoverDetail1 = new Rickshaw.Graph.HoverDetail( {
+    graph: graph1
   } );
 
-  var shelving = new Rickshaw.Graph.Behavior.Series.Toggle( {
-    graph: graph,
-    legend: legend
+  var legend1 = new Rickshaw.Graph.Legend( {
+    graph: graph1,
+    element: document.getElementById('legend1')
+
+  } );
+
+  var shelving1 = new Rickshaw.Graph.Behavior.Series.Toggle( {
+    graph: graph1,
+    legend: legend1
+  } );
+
+  var series2 = data['players'][1]['army_supply'];
+  var graph2 = new Rickshaw.Graph( {
+    element: document.querySelector("#chart2"),
+    width: 800,
+    height: 400,
+    renderer: 'area',
+    series: series2
+  } );
+  var axes = new Rickshaw.Graph.Axis.X( { graph: graph2 } );
+  var axes = new Rickshaw.Graph.Axis.Y( { graph: graph2 } );
+
+  var hoverDetail2 = new Rickshaw.Graph.HoverDetail( {
+    graph: graph2
+  } );
+
+  var legend2 = new Rickshaw.Graph.Legend( {
+    graph: graph2,
+    element: document.getElementById('legend2')
+
+  } );
+
+  var shelving1 = new Rickshaw.Graph.Behavior.Series.Toggle( {
+    graph: graph2,
+    legend: legend2
   } );
 
   // Dont forget this part
-  graph.render();
+  graph1.render();
+  graph2.render();
 });
 
 </script>

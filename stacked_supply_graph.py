@@ -67,7 +67,7 @@ def frame_to_time(frame):
     seconds = game_seconds - (60 * minutes)
     return '{0}:{1:02d}'.format(minutes, seconds)
 
-def alive_at_this_time(unit, time):
+def alive_at_this_time(unit, time, replay):
     if unit.died_at is None:
         unit.died_at = replay.frames
     if time >= unit.started_at and time <= unit.died_at:
@@ -76,45 +76,77 @@ def alive_at_this_time(unit, time):
         return False
 
 
-replay = sc2reader.load_replay(
-    'thereplay.SC2Replay',
-    engine=sc2reader.engine.GameEngine(plugins=[
-        ContextLoader(),
-        GameHeartNormalizer(),
-    ])
-)
+def process(filename):
 
-unit_supplies = {}
-for unit_type in army_units:
-    unit_supplies[unit_type] = []
+    replay = sc2reader.load_replay(
+        'thereplay.SC2Replay',
+        engine=sc2reader.engine.GameEngine(plugins=[
+            ContextLoader(),
+            GameHeartNormalizer(),
+        ])
+    )
 
-# All done in frames
-times = []
-game_end = replay.frames
-game_start = 0
+    data = {}
+    data['map'] = replay.map_name
+    data['players'] = []
 
-for current_frame in range(game_start, game_end, 160):
-    times.append(current_frame)
-    supply_per_unit = {}
-    for unit_type in army_units:
-        supply_per_unit[unit_type] = 0
-    # Scan all units owned by player
-    for unit in replay.players[1].units:
-        if unit.name not in army_units:
+    for player in replay.players:
+        if not player.is_human:
             continue
-        if alive_at_this_time(unit, current_frame):
-            supply_per_unit[unit.name] += unit.supply
-    for unit_name, supply in supply_per_unit.items():
-        unit_supplies[unit_name].append(supply)
+        if player.is_observer:
+            continue
 
-to_pop = []
-for key, value in unit_supplies.items():
-    if sum(value) == 0:
-        to_pop.append(key)
+        player_data = {}
+        player_data['name'] = player.name
+
+        unit_supplies = {}
+        for unit_type in army_units:
+            unit_supplies[unit_type] = []
+
+        # All done in frames
+        times = []
+        game_end = replay.frames
+        game_start = 0
+
+        for current_frame in range(game_start, game_end, 160):
+            times.append(current_frame)
+            supply_per_unit = {}
+            for unit_type in army_units:
+                supply_per_unit[unit_type] = 0
+            # Scan all units owned by player
+            for unit in player.units:
+                if unit.name not in army_units:
+                    continue
+                if alive_at_this_time(unit, current_frame, replay):
+                    supply_per_unit[unit.name] += unit.supply
+            for unit_name, supply in supply_per_unit.items():
+                unit_supplies[unit_name].append(supply)
+
+        to_pop = []
+        for key, value in unit_supplies.items():
+            if sum(value) == 0:
+                to_pop.append(key)
 
 
-for key in to_pop:
-    unit_supplies.pop(key, None)
+        for key in to_pop:
+            unit_supplies.pop(key, None)
 
-print(json.dumps(unit_supplies))
+        constructed_data = []
+        for key, value in unit_supplies.items():
+            obj = {}
+            obj['name'] = key
+            color = "#" +  hashlib.sha224(bytes(key, 'utf-8')).hexdigest()[:6]
+            obj['color'] = color
+            xy_tuples = []
+            for index,number in enumerate(value):
+                point = {}
+                point['x'] = times[index]
+                point['y'] = number
+                xy_tuples.append(point)
+            obj['data'] = xy_tuples
+            constructed_data.append(obj)
 
+        player_data['army_supply'] = constructed_data
+        data['players'].append(player_data)
+
+    return data
