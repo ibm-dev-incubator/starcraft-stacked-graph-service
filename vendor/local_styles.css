@@ -18,6 +18,7 @@ div, span, p, td {
 #chart_container1 {
 	float: left;
 	position: relative;
+	padding: 3em ; 
 }
 #chart2 {
 	display: inline-block;
@@ -36,6 +37,8 @@ div, span, p, td {
 #chart_container2 {
 	float: left;
 	position: relative;
+        clear:both;
+	padding: 3em ; 
 }
 .rickshaw_legend {
 	font-family: Arial;
