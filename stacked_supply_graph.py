@@ -79,7 +79,7 @@ def alive_at_this_time(unit, time, replay):
 def process(filename):
 
     replay = sc2reader.load_replay(
-        'thereplay.SC2Replay',
+        filename,
         engine=sc2reader.engine.GameEngine(plugins=[
             ContextLoader(),
             GameHeartNormalizer(),
