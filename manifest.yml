@@ -1,0 +1,5 @@
+---
+applications:
+ - name: ibm-starcraft-analytics-beta
+   random-route: true
+   memory: 128M
