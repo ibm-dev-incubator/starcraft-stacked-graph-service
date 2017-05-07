@@ -1,3 +1,4 @@
 *.pyc
 thereplay.SC2Replay
 *.swp
+uploads/*
