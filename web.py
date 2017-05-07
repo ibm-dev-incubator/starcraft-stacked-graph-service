@@ -7,7 +7,7 @@ from werkzeug.utils import secure_filename
 
 from stacked_supply_graph import process
 
-UPLOAD_FOLDER = '/home/nibz/projects/starcraft/machine_learning/stacked_supply_graph/uploads'
+UPLOAD_FOLDER = os.environ.get("HOME") + "stacked_supply_graph/uploads"
 ALLOWED_EXTENSIONS = set(['txt', 'sc2replay'])
 
 app = Flask(__name__, static_url_path='')
