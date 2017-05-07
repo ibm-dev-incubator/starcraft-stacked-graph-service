@@ -4,3 +4,4 @@ thereplay.SC2Replay
 uploads/*
 node_modules
 venv
+__pycache__
