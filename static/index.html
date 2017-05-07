@@ -2,6 +2,10 @@
 <head>
 
         <link type="text/css" rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css">
+
+        <link rel="stylesheet" href="vendor/rickshaw.min.css">
+        <link rel="stylesheet" href="vendor/local_styles.css">
+
 	<script src="/vendor/d3.v3.js"></script>
 	<script src="/vendor/d3.layout.min.js"></script>
 
@@ -18,6 +22,12 @@
 
 <div id="chart_container">
   <div id="chart"></div>
+
+  <div id="legend_container">
+    <div id="smoother" title="Smoothing"></div>
+    <div id="legend"></div>
+  </div>
+  <div id="slider"></div>
 </div>
 <div id="chart_container">
   <div id="chart2"></div>
@@ -35,7 +45,25 @@ $.getJSON( "data.json", function( data ) {
     renderer: 'area',
     series: data
   } );
-  //  var axes = new Rickshaw.Graph.Axis.Time( { graph: graph } );
+  var axes = new Rickshaw.Graph.Axis.X( { graph: graph } );
+  var axes = new Rickshaw.Graph.Axis.Y( { graph: graph } );
+
+  var hoverDetail = new Rickshaw.Graph.HoverDetail( {
+    graph: graph
+  } );
+
+  var legend = new Rickshaw.Graph.Legend( {
+    graph: graph,
+    element: document.getElementById('legend')
+
+  } );
+
+  var shelving = new Rickshaw.Graph.Behavior.Series.Toggle( {
+    graph: graph,
+    legend: legend
+  } );
+
+  // Dont forget this part
   graph.render();
 });
 
