@@ -1,2 +1,3 @@
 Flask
+-e git+https://github.com/ggtracker/sc2reader.git@upstream#egg=sc2reader
 
