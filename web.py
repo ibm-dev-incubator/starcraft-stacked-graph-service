@@ -22,18 +22,16 @@ def allowed_file(filename):
 
 
 # This is plainly from the flask docs
-@app.route('/upload', methods=['GET', 'POST'])
+@app.route('/', methods=['GET', 'POST'])
 def upload_file():
     if request.method == 'POST':
         # check if the post request has the file part
         if 'file' not in request.files:
-            flash('No file part')
             return redirect(request.url)
         file = request.files['file']
         # if user does not select file, browser also
         # submit a empty part without filename
         if file.filename == '':
-            flash('No selected file')
             return redirect(request.url)
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
@@ -67,23 +65,10 @@ def army_supply(filename):
     d = process(os.path.join(app.config['UPLOAD_FOLDER'], filename))
     return jsonify(d)
 
-@app.route('/')
-def root():
-    print("hello")
-    return app.send_static_file('index.html')
-
 @app.route('/vendor/<path:path>')
 def send_js(path):
     return send_from_directory('vendor', path)
 
-@app.route('/data.json')
-def data():
-    return app.send_static_file('data.json')
-
-
-@app.route('/data2.json')
-def data2():
-    return app.send_static_file('data2.json')
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=port)
