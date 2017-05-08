@@ -1,0 +1,6 @@
+---
+applications:
+ - name: my-app-is-broken-python
+   buildpack: python_buildpack
+   random-route: true
+   memory: 128M
