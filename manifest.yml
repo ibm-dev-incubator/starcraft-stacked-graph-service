@@ -1,5 +1,6 @@
 ---
 applications:
  - name: ibm-starcraft-analytics-beta
+   buildpack: python_buildpack
    random-route: true
    memory: 128M
