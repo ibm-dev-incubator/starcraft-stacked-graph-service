@@ -1,6 +1,6 @@
 ---
 applications:
- - name: ibm-starcraft-analytics-beta
+ - name: starcraft-stacked-army-supply-beta
    buildpack: python_buildpack
    random-route: true
    memory: 128M
