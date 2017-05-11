@@ -93,4 +93,4 @@ if __name__ == "__main__":
                                           user=SWIFT_USERNAME,
                                           key=SWIFT_API_KEY,
                                           authurl=SWIFT_AUTH_URL)
-    app.run(host='0.0.0.0', port=port, debug=True)
+    app.run(host='0.0.0.0', port=port)
