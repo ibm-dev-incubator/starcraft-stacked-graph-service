@@ -1,13 +1,21 @@
 
 import os
+import io
 import hashlib
+import tempfile
+
 from flask import Flask, send_from_directory, jsonify, render_template
 from flask import request, redirect, url_for
+import swiftclient
 from werkzeug.utils import secure_filename
 
 from stacked_supply_graph import process
 
-UPLOAD_FOLDER = os.environ.get("HOME") + "/stacked_supply_graph/uploads"
+SWIFT_AUTH_URL = os.environ.get("SWIFT_AUTH_URL")
+SWIFT_USERNAME = os.environ.get("SWIFT_USERNAME")
+SWIFT_API_KEY = os.environ.get("SWIFT_API_KEY")
+
+UPLOAD_FOLDER = str(tempfile.mkdtemp()) + "/"
 ALLOWED_EXTENSIONS = set(['txt', 'sc2replay'])
 
 app = Flask(__name__, static_url_path='')
@@ -15,6 +23,7 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 
 port = int(os.getenv("PORT"))
+
 
 def allowed_file(filename):
     return '.' in filename and \
@@ -34,16 +43,21 @@ def upload_file():
         if file.filename == '':
             return redirect(request.url)
         if file and allowed_file(file.filename):
+            # collect and save the uploaded file to a temporary directory
             filename = secure_filename(file.filename)
             unix_filename = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             file.save(unix_filename)
+            # Get the sha1 hash of the file
             hasher = hashlib.sha1()
             with open(unix_filename, 'rb') as f:
                 buf = f.read()
                 hasher.update(buf)
             hashed_name = hasher.hexdigest() + ".SC2Replay"
-            target_name = os.path.join(app.config['UPLOAD_FOLDER'], hashed_name)
-            os.rename(unix_filename, target_name)
+            # Save the file renamed to its sha1 hash to swift
+            # in the 'replays' container
+            with open(unix_filename, 'rb') as f:
+                swift.put_object('replays', hashed_name, f.read())
+
             return redirect(url_for('processing',
                                     filename=hashed_name))
     return '''
@@ -62,7 +76,9 @@ def processing(filename):
 
 @app.route('/api/1.0/army_supply/<filename>')
 def army_supply(filename):
-    d = process(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+    headers, file = swift.get_object('replays', filename)
+    readable_file = io.BytesIO(file)
+    d = process(readable_file)
     return jsonify(d)
 
 @app.route('/vendor/<path:path>')
@@ -71,4 +87,8 @@ def send_js(path):
 
 
 if __name__ == "__main__":
+    swift = swiftclient.client.Connection(auth_version='1',
+                                          user=SWIFT_USERNAME,
+                                          key=SWIFT_API_KEY,
+                                          authurl=SWIFT_AUTH_URL)
     app.run(host='0.0.0.0', port=port, debug=True)
