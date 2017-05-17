@@ -11,9 +11,11 @@ from werkzeug.utils import secure_filename
 
 from stacked_supply_graph import process
 
+# Grab deployment details from environment
 SWIFT_AUTH_URL = os.environ.get("SWIFT_AUTH_URL")
 SWIFT_USERNAME = os.environ.get("SWIFT_USERNAME")
 SWIFT_API_KEY = os.environ.get("SWIFT_API_KEY")
+LISTEN_PORT = int(os.getenv("PORT"))
 
 UPLOAD_FOLDER = str(tempfile.mkdtemp()) + "/"
 ALLOWED_EXTENSIONS = set(['txt', 'sc2replay'])
@@ -22,7 +24,6 @@ app = Flask(__name__, static_url_path='')
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 
-port = int(os.getenv("PORT"))
 
 
 def allowed_file(filename):
@@ -93,4 +94,4 @@ if __name__ == "__main__":
                                           user=SWIFT_USERNAME,
                                           key=SWIFT_API_KEY,
                                           authurl=SWIFT_AUTH_URL)
-    app.run(host='0.0.0.0', port=port)
+    app.run(host='0.0.0.0', port=LISTEN_PORT)
