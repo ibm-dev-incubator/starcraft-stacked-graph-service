@@ -6,15 +6,14 @@ import tempfile
 
 from flask import Flask, send_from_directory, jsonify, render_template
 from flask import request, redirect, url_for
-import swiftclient
 from werkzeug.utils import secure_filename
+
+#from keystoneauth1 import session
+#from keystoneauth1.identity import v3
 
 from stacked_supply_graph import process
 
 # Grab deployment details from environment
-SWIFT_AUTH_URL = os.environ.get("SWIFT_AUTH_URL")
-SWIFT_USERNAME = os.environ.get("SWIFT_USERNAME")
-SWIFT_API_KEY = os.environ.get("SWIFT_API_KEY")
 LISTEN_PORT = int(os.getenv("PORT"))
 
 UPLOAD_FOLDER = str(tempfile.mkdtemp()) + "/"
@@ -54,10 +53,9 @@ def upload_file():
                 buf = f.read()
                 hasher.update(buf)
             hashed_name = hasher.hexdigest() + ".SC2Replay"
-            # Save the file renamed to its sha1 hash to swift
-            # in the 'replays' container
-            with open(unix_filename, 'rb') as f:
-                swift.put_object('replays', hashed_name, f.read())
+            # Save the file renamed to its sha1 hash to disk
+            # in the temporary dir
+            os.rename(unix_filename, os.path.join(app.config['UPLOAD_FOLDER'], hashed_name))
             return redirect(url_for('processing',
                                     filename=hashed_name))
     return '''
@@ -78,9 +76,9 @@ def processing(filename):
 
 @app.route('/api/1.0/army_supply/<filename>')
 def army_supply(filename):
-    headers, file = swift.get_object('replays', filename)
-    readable_file = io.BytesIO(file)
-    d = process(readable_file)
+    path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    with open(path) as f:
+        d = process(f)
     return jsonify(d)
 
 
@@ -90,8 +88,4 @@ def send_js(path):
 
 
 if __name__ == "__main__":
-    swift = swiftclient.client.Connection(auth_version='1',
-                                          user=SWIFT_USERNAME,
-                                          key=SWIFT_API_KEY,
-                                          authurl=SWIFT_AUTH_URL)
     app.run(host='0.0.0.0', port=LISTEN_PORT)

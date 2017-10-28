@@ -135,7 +135,7 @@ def process(filename):
         for key, value in unit_supplies.items():
             obj = {}
             obj['name'] = key
-            color = "#" +  hashlib.sha224(bytes(key, 'utf-8')).hexdigest()[:6]
+            color = "#" + hashlib.sha224(key).hexdigest()[:6]
             obj['color'] = color
             xy_tuples = []
             for index,number in enumerate(value):
